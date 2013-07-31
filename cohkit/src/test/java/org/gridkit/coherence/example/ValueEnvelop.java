@@ -43,6 +43,10 @@ public class ValueEnvelop {
     	return binaryPayload;
     }
     	
+    /**
+     * This serializer should be used in process which does not have domain objects in classpath.
+     * Payload will remain in binary form.
+     */
     public static class ServerSerializer implements PofSerializer {
 
 		@Override
@@ -62,6 +66,10 @@ public class ValueEnvelop {
 		}
     }
     
+    /**
+     * This serializer should be used in process having domain object in classpath.
+     * Payload will be deserialized as Java object.
+     */
     public static class ClientSerializer implements PofSerializer {
 
 		@Override
