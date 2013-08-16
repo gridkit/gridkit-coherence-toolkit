@@ -53,7 +53,7 @@
         <dependency>
             <groupId>org.gridkit.coherence-tools</groupId>
             <artifactId>chtest</artifactId>
-            <version>0.2.3</version>
+            <version>0.3-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
