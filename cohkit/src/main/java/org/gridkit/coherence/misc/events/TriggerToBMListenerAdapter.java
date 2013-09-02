@@ -15,7 +15,10 @@
  */
 package org.gridkit.coherence.misc.events;
 
+import java.io.Externalizable;
 import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 import com.tangosol.io.pof.PofReader;
 import com.tangosol.io.pof.PofWriter;
@@ -27,6 +30,8 @@ import com.tangosol.util.BinaryEntry;
 import com.tangosol.util.MapEvent;
 import com.tangosol.util.MapListener;
 import com.tangosol.util.MapTrigger;
+import com.tangosol.util.MapTriggerListener;
+import com.tangosol.util.filter.FilterTrigger;
 
 /**
  * Using this class you can let existing backing map listeners 
@@ -34,14 +39,25 @@ import com.tangosol.util.MapTrigger;
  * 
  * @author Alexey Ragozin (alexey.ragozin@gmail.com)
  */
-public abstract class TriggerToBMListenerAdapter implements MapTrigger, PortableObject {
+public abstract class TriggerToBMListenerAdapter extends MapTriggerListener implements MapTrigger, PortableObject, Externalizable {
 
 	private static final long serialVersionUID = 20121214L;
 	
-	private volatile MapListener listener;
+	private transient volatile MapListener listener;
 
 	protected abstract MapListener instantiateListener(String cacheName, BackingMapManagerContext context);
 	
+	public TriggerToBMListenerAdapter() {
+		// have to pass something to constructor
+		// this trigger will never be used
+		super(new FilterTrigger());
+	}
+	
+	@Override
+	public MapTrigger getTrigger() {
+		return this;
+	}
+
 	@Override
 	public int hashCode() {
 		return getClass().hashCode();
@@ -64,6 +80,16 @@ public abstract class TriggerToBMListenerAdapter implements MapTrigger, Portable
 
 	@Override
 	public void writeExternal(PofWriter out) throws IOException {
+	}
+
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		// no fields persisted
+	}
+
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		// no fields persisted
 	}
 
 	@Override

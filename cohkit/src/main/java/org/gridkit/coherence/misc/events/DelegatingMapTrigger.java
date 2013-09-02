@@ -29,10 +29,13 @@ import com.tangosol.util.MapTrigger;
  * 
  * @author Alexey Ragozin (alexey.ragozin@gmail.com)
  */
-public abstract class DelegatingMapTrigger extends TriggerToBMListenerAdapter {
+public class DelegatingMapTrigger extends TriggerToBMListenerAdapter {
 
 	private static final long serialVersionUID = 20121214L;
 
+	public DelegatingMapTrigger() {		
+	}
+	
 	@Override
 	protected MapListener instantiateListener(String cacheName, BackingMapManagerContext context) {
 		return new DelegatingBackingMapListener(context, cacheName);
