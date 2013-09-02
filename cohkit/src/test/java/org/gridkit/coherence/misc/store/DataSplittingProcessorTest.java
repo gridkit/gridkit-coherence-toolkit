@@ -9,6 +9,7 @@ import junit.framework.Assert;
 
 import org.gridkit.coherence.chtest.CacheConfig;
 import org.gridkit.coherence.chtest.CacheConfig.DistributedScheme;
+import org.gridkit.coherence.chtest.CohHelper;
 import org.gridkit.coherence.chtest.DisposableCohCloud;
 import org.junit.Before;
 import org.junit.Rule;
@@ -17,6 +18,7 @@ import org.junit.Test;
 import com.tangosol.net.CacheFactory;
 import com.tangosol.net.NamedCache;
 import com.tangosol.util.CompositeKey;
+import com.tangosol.util.ExternalizableHelper;
 
 
 public class DataSplittingProcessorTest {
@@ -29,6 +31,7 @@ public class DataSplittingProcessorTest {
 		cloud.all().presetFastLocalCluster();
 		
 		DistributedScheme scheme = CacheConfig.distributedSheme();
+		scheme.serviceName("TestCacheScheme");
 		scheme.backingMapScheme(CacheConfig.localScheme());
 		scheme.partitionCount(2);
 		scheme.autoStart(true);
@@ -44,8 +47,6 @@ public class DataSplittingProcessorTest {
 		cloud.nodes("client", "server1").startCacheServer();
 		NamedCache cache = cloud.node("client").getCache("test");
 		
-		
-		
 		cache.put("A", "A");
 		cache.put("B", "B");
 		cache.put("C", "C");
@@ -55,7 +56,7 @@ public class DataSplittingProcessorTest {
 		data.put("B", "1");
 		data.put("C", "2");
 		data.put("D", "3");
-		
+
 		cloud.nodes("client").exec(new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
@@ -76,20 +77,30 @@ public class DataSplittingProcessorTest {
 	}
 	
 	@Test
+	public void test_key() {
+		System.out.println(ExternalizableHelper.toBinary("A").hashCode());
+		System.out.println(ExternalizableHelper.toBinary("B").hashCode());
+		System.out.println(ExternalizableHelper.toBinary("CC").hashCode());
+	}
+	
+	@Test
 	public void test_composite_key_processing() {
 		
 		cloud.nodes("client", "server1", "server2").startCacheServer();
 		NamedCache cache = cloud.node("client").getCache("test");
 		
+		// Keys are chosen to be routed to different partitions (for default serialization settings)
 		cache.put(ck("A", "A"), "A");
-		cache.put(ck("B", "B"), "B");
-		cache.put(ck("B", "C"), "C");
+		cache.put(ck("CC", "B"), "B");
+		cache.put(ck("CC", "C"), "C");
+
+		CohHelper.ensurePartitionOwnership(cloud.nodes("server1", "server2"), "TestCacheScheme");
 		
 		final Map<Object, Object> data = new HashMap<Object, Object>();
 		data.put(ck("A", "A"), "0");
-		data.put(ck("B", "B"), "1");
-		data.put(ck("B", "C"), "2");
-		data.put(ck("B", "D"), "3");
+		data.put(ck("CC", "B"), "1");
+		data.put(ck("CC", "C"), "2");
+		data.put(ck("CC", "D"), "3");
 		
 		cloud.nodes("client").exec(new Callable<Void>() {
 			@Override
@@ -101,9 +112,9 @@ public class DataSplittingProcessorTest {
 		});
 		
 		Assert.assertEquals("A0", cache.get(ck("A", "A")));
-		Assert.assertEquals("B1", cache.get(ck("B", "B")));
-		Assert.assertEquals("C2", cache.get(ck("B", "C")));
-		Assert.assertEquals("3", cache.get(ck("B", "D")));
+		Assert.assertEquals("B1", cache.get(ck("CC", "B")));
+		Assert.assertEquals("C2", cache.get(ck("CC", "C")));
+		Assert.assertEquals("3", cache.get(ck("CC", "D")));
 	}
 	
 	@SuppressWarnings("serial")
