@@ -18,9 +18,12 @@ package org.gridkit.coherence.misc.store;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.gridkit.coherence.misc.store.EntryDataProcessor.EntryWithData;
 
@@ -85,6 +88,12 @@ public class DataSplittingProcessor {
 		}
 
 		@Override
+		@SuppressWarnings("rawtypes")
+		public Map processAll(Set entries) {
+			return super.processAll(sortEntries(entries));
+		}
+
+		@Override
 		public Object process(Entry entry) {
 			if (entry.isPresent()) {
 				throw new IllegalStateException("DataSplittingProcessor is invoked in wrong way");
@@ -122,6 +131,12 @@ public class DataSplittingProcessor {
 
 		protected KeyAssociationAwareProcessor(EntryDataProcessor processor) {
 			this.processor = processor;
+		}
+
+		@Override
+		@SuppressWarnings("rawtypes")
+		public Map processAll(Set entries) {
+			return super.processAll(sortEntries(entries));
 		}
 
 		@Override
@@ -167,6 +182,38 @@ public class DataSplittingProcessor {
 		
 		public Object getPayloadData() {
 			return data;
+		}		
+	}
+	
+	/**
+	 * Sorting of entries should prevent deadlock over keys between
+	 * concurrent executions.
+	 * @param entries
+	 * @return
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private static Set sortEntries(Set entries) {
+		ArraySet sortedSet = new ArraySet(entries);
+		Collections.sort(sortedSet, BKC);
+		return sortedSet;
+	}
+	
+	@SuppressWarnings({ "rawtypes", "serial" })
+	private static class ArraySet extends ArrayList implements Set {
+		
+		@SuppressWarnings("unchecked")
+		public ArraySet(Collection c) {
+			super(c);
+		}
+	}
+	
+	private static BinaryKeyComparator BKC = new BinaryKeyComparator();
+	
+	private static class BinaryKeyComparator implements Comparator<BinaryEntry> {
+
+		@Override
+		public int compare(BinaryEntry o1, BinaryEntry o2) {
+			return o1.getBinaryKey().compareTo(o2.getBinaryKey());
 		}		
 	}
 }

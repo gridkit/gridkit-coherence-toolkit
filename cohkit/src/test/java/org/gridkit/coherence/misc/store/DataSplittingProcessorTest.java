@@ -18,7 +18,6 @@ import org.junit.Test;
 import com.tangosol.net.CacheFactory;
 import com.tangosol.net.NamedCache;
 import com.tangosol.util.CompositeKey;
-import com.tangosol.util.ExternalizableHelper;
 
 
 public class DataSplittingProcessorTest {
@@ -74,13 +73,6 @@ public class DataSplittingProcessorTest {
 
 	private CompositeKey ck(Object p, Object s) {
 		return new CompositeKey(p, s);
-	}
-	
-	@Test
-	public void test_key() {
-		System.out.println(ExternalizableHelper.toBinary("A").hashCode());
-		System.out.println(ExternalizableHelper.toBinary("B").hashCode());
-		System.out.println(ExternalizableHelper.toBinary("CC").hashCode());
 	}
 	
 	@Test
