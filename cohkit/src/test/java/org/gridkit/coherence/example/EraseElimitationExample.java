@@ -20,7 +20,9 @@ import com.tangosol.net.CacheFactory;
 import com.tangosol.net.NamedCache;
 import com.tangosol.net.cache.BinaryEntryStore;
 import com.tangosol.util.BinaryEntry;
+import com.tangosol.util.InvocableMap.Entry;
 import com.tangosol.util.MapTriggerListener;
+import com.tangosol.util.processor.AbstractProcessor;
 import com.tangosol.util.processor.ExtractorProcessor;
 
 public class EraseElimitationExample {
@@ -91,13 +93,16 @@ public class EraseElimitationExample {
 
 				System.out.println("Loading entry via read through and removing");
 				System.out.println("LOAD then ERASE is expected (ok)");
-				
+							
 				cache.get("C");
 				cache.remove("C");
+
+				System.out.println("Test EP read-though");
+				
+				cache.invoke("X", new ReadThroughEntry());
 				
 				Thread.sleep(2000);
 
-				
 				System.out.println("Updating cache very slow to ensure race");
 				System.out.println("multiple STORE then ERASE is expected (broken)");
 				
@@ -122,6 +127,18 @@ public class EraseElimitationExample {
 				return null;
 			}
 		});
+		
+	}
+	
+	@SuppressWarnings("serial")
+	public static class ReadThroughEntry extends AbstractProcessor {
+
+		@Override
+		public Object process(Entry e) {
+			System.out.println("[" + e.getKey() + "].isPresent = " + e.isPresent());
+			e.getValue();
+			return null;
+		}
 		
 	}
 	
