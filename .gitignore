@@ -1,5 +1,6 @@
 target
 hs_err_*
+update.cmd
 .project
 .classpath
 .settings
