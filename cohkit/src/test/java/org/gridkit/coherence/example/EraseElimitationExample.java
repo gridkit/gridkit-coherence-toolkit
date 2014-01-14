@@ -12,6 +12,7 @@ import org.gridkit.coherence.chtest.CacheConfig.DistributedScheme;
 import org.gridkit.coherence.chtest.CacheConfig.ReadWriteBackingMap;
 import org.gridkit.coherence.chtest.CohCloud.CohNode;
 import org.gridkit.coherence.chtest.DisposableCohCloud;
+import org.gridkit.coherence.misc.store.StoreFlagExtractor;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
