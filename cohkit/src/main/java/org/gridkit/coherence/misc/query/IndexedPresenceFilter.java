@@ -14,9 +14,29 @@ import com.tangosol.io.pof.PortableObject;
 import com.tangosol.util.Filter;
 import com.tangosol.util.MapIndex;
 import com.tangosol.util.ValueExtractor;
+import com.tangosol.util.aggregator.Count;
 import com.tangosol.util.filter.IndexAwareFilter;
 
-public class IndexPresenceFilter implements IndexAwareFilter, Serializable, PortableObject {
+/**
+ * <p>
+ * This is a very special filter which can help you to test whenever matching equals filter would return empty data set or not.
+ * </p>
+ * <p>
+ * <b>Rationale</b><br/>
+ * Sometimes you need to know if there are any entry matching criteria or not (without knowing exact entries or their number).
+ * <br/>
+ * You can use {@link Count} aggregator, but if matching result set is large it will require some work effort and produce considerable stress on garbage collector.
+ * <br/>
+ * If you want to perform such test, say, every 50ms that may not be acceptable.
+ * <br/>
+ * </p>
+ * <p>         
+ * This filter is doing simple check in index, which is required, and return first entry reference found in index (avoiding creation of temporary entry set object, which could be fairly large).
+ * </p>
+ *  
+ * @author Alexey Ragozin (alexey.ragozin@gmail.com)
+ */
+public class IndexedPresenceFilter implements IndexAwareFilter, Serializable, PortableObject {
 	
 	private static final long serialVersionUID = 20130731L;
 
@@ -26,15 +46,15 @@ public class IndexPresenceFilter implements IndexAwareFilter, Serializable, Port
 	/**
 	 * @deprecated Required for POF serialization
 	 */
-	public IndexPresenceFilter() {
+	public IndexedPresenceFilter() {
 	}
 	
-	public IndexPresenceFilter(ValueExtractor extractor, Object value) {
+	public IndexedPresenceFilter(ValueExtractor extractor, Object value) {
 		this.extractor = extractor;
 		this.values = Collections.singleton(value);
 	}
 
-	public IndexPresenceFilter(ValueExtractor extractor, Collection<?> values) {
+	public IndexedPresenceFilter(ValueExtractor extractor, Collection<?> values) {
 		this.extractor = extractor;
 		this.values = values;
 	}

@@ -55,11 +55,11 @@ public class IndexPresenceFilterTest {
 				ReflectionExtractor ve = new ReflectionExtractor("getFieldA");
 				cache.addIndex(ve, false, null);
 				
-				int count = ((Number)cache.aggregate(new IndexPresenceFilter(ve, "0"), new Count())).intValue();
+				int count = ((Number)cache.aggregate(new IndexedPresenceFilter(ve, "0"), new Count())).intValue();
 				
 				Assert.assertTrue("Count should be greater than 0", count > 0);
 
-				count = ((Number)cache.aggregate(new IndexPresenceFilter(ve, "4"), new Count())).intValue();
+				count = ((Number)cache.aggregate(new IndexedPresenceFilter(ve, "4"), new Count())).intValue();
 				
 				Assert.assertTrue("Count should be 0", count == 0);				
 			}
@@ -81,7 +81,7 @@ public class IndexPresenceFilterTest {
 				NamedCache cache = CacheFactory.getCache(cacheName);
 				ReflectionExtractor ve = new ReflectionExtractor("getFieldA");
 				
-				cache.aggregate(new IndexPresenceFilter(ve, "0"), new Count());
+				cache.aggregate(new IndexedPresenceFilter(ve, "0"), new Count());
 				
 				Assert.fail("Expection expected");
 			}
