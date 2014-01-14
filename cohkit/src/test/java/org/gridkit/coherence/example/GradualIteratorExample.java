@@ -33,6 +33,7 @@ public class GradualIteratorExample {
         /**
          * Limiting number of cache keys and extracted order by values
          * transfered to this member in single iteration (GradualIterator.getNext() method).
+         * Member will not receive more than (limit * partitions count) objects
          */
         iter.setLimit(1024);
         
@@ -54,7 +55,7 @@ public class GradualIteratorExample {
         while (iter.hasNext()) {
             /**
              * Getting next portion of cache entries
-             * Size is no more that limit specified above
+             * Size is no more that (limit * partitions count)
              */
             List<GradualIterator.Entry> entries = iter.getNext();
             
